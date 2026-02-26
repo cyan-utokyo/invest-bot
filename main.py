@@ -7,9 +7,6 @@ from datetime import datetime
 TG_TOKEN = os.getenv("TG_TOKEN", "你的TOKEN")
 CHAT_ID = os.getenv("CHAT_ID", "你的CHAT_ID")
 
-# TG_TOKEN = "8326935411:AAGaZYUCPo-LhyGADq5_dG0ylENi8ZYgkIs"          # Replace with your bot token
-# CHAT_ID = "8269128724"                       # Replace with your chat ID
-
 def get_data():
     report = {}
     print("🚀 开始抓取数据 (v7.0 混合双打版)...")
