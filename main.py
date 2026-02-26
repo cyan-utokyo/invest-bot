@@ -144,13 +144,32 @@ def generate_message(data):
     return msg
 
 def send_telegram(text):
-    if not TG_TOKEN or "你的TOKEN" in TG_TOKEN:
-        print("🚫 未配置 Token")
+    # 1. 检查环境变量是否存在
+    if not TG_TOKEN:
+        print("🚫 致命错误: TG_TOKEN 变量为空！请检查 GitHub Secrets。")
         return
+    if "你的TOKEN" in TG_TOKEN:
+        print("🚫 致命错误: TG_TOKEN 还是默认值，未读取到 Secrets。")
+        return
+
+    print(f"🤖 准备推送... (Token长度: {len(TG_TOKEN)}, ID: {CHAT_ID})")
+    
     url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage"
     payload = {"chat_id": CHAT_ID, "text": text, "parse_mode": "Markdown"}
-    try: requests.post(url, json=payload, timeout=10)
-    except Exception as e: print("推送失败", e)
+    
+    try:
+        # 2. 发送请求
+        resp = requests.post(url, json=payload, timeout=10)
+        
+        # 3. 【关键】打印响应结果
+        print(f"📡 响应状态码: {resp.status_code}")
+        print(f"📩 响应内容: {resp.text}")
+        
+        # 4. 如果失败，抛出异常让 GitHub Actions 标红
+        if resp.status_code != 200:
+            print("❌ 推送失败！请根据上方响应内容检查 Token 或 ID。")
+    except Exception as e:
+        print("💥 网络层异常:", e)
 
 if __name__ == "__main__":
     data = get_data()
