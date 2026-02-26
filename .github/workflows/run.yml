@@ -1,0 +1,28 @@
+name: Daily Invest Bot
+
+on:
+  schedule:
+    # 北京时间 09:00 (UTC 01:00)
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Shanghai
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    - name: Run script
+      env:
+        TG_TOKEN: ${{ secrets.TG_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
+      run: python main.py
