@@ -113,50 +113,55 @@ def generate_message(data):
     bond_chg = data.get('bond_change', '')
     fx = data.get('usd_cny', 0)
     
-    msg += f"🏦 *基准锚点*\n"
-    msg += f"• 国债：`{bond}%` {bond_chg}\n"
-    msg += f"• 汇率：`{fx}`\n\n"
+    msg += f"🏦 *宏观基准锚点*\n"
+    msg += f"• 10年期国债：`{bond}%` {bond_chg}\n"
+    msg += f"• 美元兑人民币：`{fx}`\n\n"
 
     # 2. A500
     if 'a500_div1' in data:
-        # A500 主看全市值(1)，辅看流通(2)
         div1 = data['a500_div1']
         div2 = data['a500_div2']
         pe1 = data['a500_pe1']
         trend = data.get('a500_trend', '')
         spread = round(div1 - bond, 2)
         
-        icon = "🟢" if spread > 0 else "🔴"
-        advice = "舒适区" if spread > 0 else "性价比低"
+        # 🟢 明确的操作指令转化
+        if spread >= 1.0:
+            action = "🟢 【建议买入/定投】股息显著跑赢国债，加仓性价比高"
+        elif spread >= 0:
+            action = "🟡 【安心持有】处于相对舒适区，维持现有仓位"
+        else:
+            action = "🔴 【暂缓买入/观望】股息不及无风险利率，吸引力偏低"
         
         msg += f"🛡️ *中证A500 (000510)*\n"
-        msg += f"• 股息(全)：`{div1}%` {trend} 👈主力\n"
-        msg += f"• 股息(流)：`{div2}%`\n"
+        msg += f"• 股息(全)：`{div1}%` {trend}\n"
         msg += f"• PE(全)：`{pe1}`\n"
-        msg += f"• 股债利差：`{spread}%` {icon}\n"
-        msg += f"• 评价：{advice}\n\n"
+        msg += f"• 股债利差：`{spread}%`\n"
+        msg += f"• 💡 核心策略：*{action}*\n\n"
 
     # 3. 红利低波
     if 'low_div2' in data:
-        # 红利 主看流通(2)，辅看全市值(1)
-        div1 = data['low_div1'] # 同花顺口径
-        div2 = data['low_div2'] # 真实回报
+        div1 = data['low_div1'] 
+        div2 = data['low_div2'] 
         pe1 = data['low_pe1']
         pe2 = data['low_pe2']
         trend = data.get('low_trend', '')
         pe_rank = data.get('low_pe_rank', 0)
         
-        if div2 >= 5.0: status = "🟢 极佳"
-        elif div2 >= 4.8 and pe_rank < 60: status = "🟢 准买入"
-        elif div2 > 4.5: status = "🟡 正常"
-        else: status = "🔴 拥挤"
+        # 🟢 明确的操作指令转化
+        if div2 >= 5.0 and pe_rank < 50: 
+            action = "🟢 【积极买入】高分红且未拥挤，安全垫极厚"
+        elif div2 >= 4.5: 
+            action = "🟡 【安心持有】分红回报正常，适合继续拿分红"
+        elif div2 < 4.5 and pe_rank > 70:
+            action = "🔴 【暂停买入】赛道拥挤，PE分位过高，停止加仓"
+        else: 
+            action = "🟡 【维持持有】处于历史均值附近，多看少动"
 
         msg += f"💰 *红利低波 (H30269)*\n"
-        msg += f"• 股息(流)：`{div2}%` {trend} 👈真实\n"
-        msg += f"• 股息(全)：`{div1}%` (软件口径)\n"
+        msg += f"• 股息(流)：`{div2}%` {trend} 👈真实回报\n"
         msg += f"• PE(流)：`{pe2}` (历史分位 `{pe_rank}%`)\n"
-        msg += f"• PE(全)：`{pe1}`\n"
-        msg += f"• 状态：{status}\n"
+        msg += f"• 💡 核心策略：*{action}*\n"
 
     return msg
 

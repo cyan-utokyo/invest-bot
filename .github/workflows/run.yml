@@ -2,8 +2,10 @@ name: Daily Invest Bot
 
 on:
   schedule:
-    # 北京时间 09:00 (UTC 01:00)
-    - cron: '0 1 * * *'
+    # 避开整点高峰，设置为 UTC 22:35
+    # 对应日本时间 07:35 (JST) / 北京时间 06:35 (CST)
+    # 算上 GitHub 排队和脚本运行时间，预计日本时间 08:00 左右收到推送
+    - cron: '35 22 * * *'
   workflow_dispatch:
 
 jobs:
